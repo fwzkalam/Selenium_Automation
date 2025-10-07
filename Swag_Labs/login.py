@@ -1,3 +1,13 @@
+"""
+login_tests_simple.py
+Sederhana, mudah dibaca, dan langsung menjalankan beberapa skenario login:
+- Positive: standard_user / secret_sauce -> sukses
+- Negative: empty username, empty password, wrong credentials, locked_out_user
+
+Cara pakai:
+  python -m pip install selenium webdriver-manager
+  python login_tests_simple.py
+"""
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -12,39 +22,18 @@ BASE_URL = "https://www.saucedemo.com/"
 # Helper / Utility
 # ----------------------
 def create_driver(headless=False):
-    """Buat Chrome webdriver sederhana dengan opsi tambahan agar popup password tidak muncul."""
+    """Buat Chrome webdriver sederhana. Headless opsional."""
     from selenium.webdriver.chrome.options import Options
     opts = Options()
-
-    # Tambahkan argumen berikut untuk menonaktifkan fitur password manager & credential service
-    prefs = {
-        "credentials_enable_service": False,
-        "profile.password_manager_enabled": False
-    }
-    opts.add_experimental_option("prefs", prefs)
-
-    # Hilangkan juga info bar "Chrome is being controlled..."
-    opts.add_experimental_option("excludeSwitches", ["enable-automation"])
-    opts.add_experimental_option('useAutomationExtension', False)
-
     if headless:
+        # Non-headless default so developer can see browser (easier debugging)
         opts.add_argument("--headless=new")
         opts.add_argument("--no-sandbox")
-        opts.add_argument("--disable-gpu")
-
-    # Opsional: nonaktifkan popup notifikasi & credential leak warning
-    opts.add_argument("--disable-notifications")
-    opts.add_argument("--disable-infobars")
-    opts.add_argument("--disable-save-password-bubble")
-
-    # Jalankan Chrome
-    from selenium.webdriver.chrome.service import Service as ChromeService
-    from webdriver_manager.chrome import ChromeDriverManager
+    opts.add_argument("--window-size=1200,800")
     service = ChromeService(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=opts)
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(2)  # timeout singkat agar test responsif
     return driver
-
 
 def open_login_page(driver):
     driver.get(BASE_URL)
